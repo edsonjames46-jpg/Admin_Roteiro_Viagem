@@ -137,6 +137,7 @@
         background: #fef3c7;
         color: #92400e;
       }
+
       .bg-success-light {
         background: #dcfce7;
         color: #166534;
@@ -181,18 +182,41 @@
         margin-bottom: 0.5rem;
       }
 
-      select[multiple] {
-        min-height: 150px;
-      }
-
-      select[multiple] option {
-        padding: 0.5rem;
-      }
-
       .form-text {
         font-size: 0.85rem;
         color: #6b7280;
         margin-top: 0.25rem;
+      }
+
+      .cliente-checklist {
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        max-height: 220px;
+        overflow-y: auto;
+        padding: 0.5rem;
+        background: #fff;
+      }
+
+      .cliente-check-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.45rem 0.35rem;
+        border-radius: 8px;
+      }
+
+      .cliente-check-item:hover {
+        background: #f8fafc;
+      }
+
+      .feedback-card {
+        border-left: 4px solid var(--accent);
+      }
+
+      .feedback-empty {
+        color: #6b7280;
+        text-align: center;
+        padding: 1rem;
       }
     </style>
   </head>
@@ -289,14 +313,14 @@
             <span class="text-muted small" id="loggedAdminEmail"></span>
           </div>
           <div class="d-flex gap-3 align-items-center">
-            <span class="badge bg-success-light text-success"
-              >Sistema Online</span
-            >
+            <span class="badge bg-success-light text-success">
+              Sistema Online
+            </span>
           </div>
         </header>
 
         <div id="viewContent">
-          <!-- Dashboard Home -->
+          <!-- Dashboard -->
           <div id="tabDashboard" class="view-pane">
             <div class="row g-4 mb-4">
               <div class="col-md-3">
@@ -308,6 +332,7 @@
                   <h2 class="fw-bold mb-0" id="statClientes">0</h2>
                 </div>
               </div>
+
               <div class="col-md-3">
                 <div class="card-kpi">
                   <div class="kpi-icon bg-success-subtle text-success">
@@ -317,6 +342,7 @@
                   <h2 class="fw-bold mb-0" id="statRoteiro">0%</h2>
                 </div>
               </div>
+
               <div class="col-md-3">
                 <div class="card-kpi">
                   <div class="kpi-icon bg-warning-subtle text-warning">
@@ -326,6 +352,7 @@
                   <h2 class="fw-bold mb-0" id="statPendentes">0</h2>
                 </div>
               </div>
+
               <div class="col-md-3">
                 <div class="card-kpi bg-dark text-white">
                   <div class="kpi-icon bg-white-subtle text-white">
@@ -333,6 +360,18 @@
                   </div>
                   <div class="text-light small fw-bold">CAIXA ACUMULADO</div>
                   <h2 class="fw-bold mb-0" id="statFinanceiro">R$ 0,00</h2>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-kpi">
+              <div class="d-flex align-items-center gap-2 mb-3">
+                <i data-lucide="message-square-text" class="text-primary"></i>
+                <h5 class="fw-bold mb-0">Observações e Experiências</h5>
+              </div>
+              <div id="feedbackList" class="d-flex flex-column gap-3">
+                <div class="feedback-empty">
+                  Nenhuma observação registrada até o momento.
                 </div>
               </div>
             </div>
@@ -348,12 +387,16 @@
                   <input type="hidden" id="roteiroId" />
 
                   <div class="mb-3">
-                    <label for="roteiroCliente" class="form-label small fw-bold">
+                    <label class="form-label small fw-bold">
                       Selecionar clientes
                     </label>
-                    <select id="roteiroCliente" class="form-select" multiple size="6"></select>
+                    <div id="roteiroClienteChecklist" class="cliente-checklist">
+                      <div class="text-muted small">
+                        Nenhum cliente carregado.
+                      </div>
+                    </div>
                     <div class="form-text">
-                      Segure Ctrl (ou Cmd no Mac) para selecionar mais de uma pessoa.
+                      Marque os nomes que deverão visualizar este roteiro.
                     </div>
                   </div>
 
@@ -415,9 +458,6 @@
             <div class="table-container p-3">
               <div class="d-flex justify-content-between mb-3">
                 <h5 class="fw-bold">Fluxo de Caixa</h5>
-                <button class="btn btn-dark btn-sm" id="btnNewFin">
-                  Novo Lançamento
-                </button>
               </div>
               <div class="table-responsive">
                 <table class="table align-middle">
@@ -465,9 +505,9 @@
                   </select>
 
                   <div class="mb-3">
-                    <label class="small fw-bold text-muted"
-                      >Privilégios do Painel:</label
-                    >
+                    <label class="small fw-bold text-muted">
+                      Privilégios do Painel:
+                    </label>
                     <div class="form-check">
                       <input
                         class="form-check-input"
@@ -475,9 +515,9 @@
                         id="p_rot"
                         checked
                       />
-                      <label class="form-check-label" for="p_rot"
-                        >Roteiro</label
-                      >
+                      <label class="form-check-label" for="p_rot">
+                        Roteiro
+                      </label>
                     </div>
                     <div class="form-check">
                       <input
@@ -486,9 +526,9 @@
                         id="p_fin"
                         checked
                       />
-                      <label class="form-check-label" for="p_fin"
-                        >Financeiro</label
-                      >
+                      <label class="form-check-label" for="p_fin">
+                        Financeiro
+                      </label>
                     </div>
                     <div class="form-check">
                       <input
@@ -497,9 +537,9 @@
                         id="p_vou"
                         checked
                       />
-                      <label class="form-check-label" for="p_vou"
-                        >Vouchers</label
-                      >
+                      <label class="form-check-label" for="p_vou">
+                        Vouchers
+                      </label>
                     </div>
                   </div>
 
@@ -615,7 +655,6 @@
       let usersCache = [];
       let realtimeInitialized = false;
 
-      // UI Utilities
       const showToast = (msg, type = "primary") => {
         const id = Date.now();
         const html = `
@@ -624,20 +663,21 @@
               <div class="toast-body">${msg}</div>
               <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
-          </div>`;
+          </div>
+        `;
         document
           .querySelector(".toast-container")
           .insertAdjacentHTML("beforeend", html);
-        setTimeout(
-          () => document.getElementById(`toast-${id}`)?.remove(),
-          3000,
-        );
+
+        setTimeout(() => {
+          document.getElementById(`toast-${id}`)?.remove();
+        }, 3000);
       };
 
       const escapeHtml = (value) => {
         return String(value ?? "")
           .replaceAll("&", "&amp;")
-          .replaceAll("&lt;", "&lt;")
+          .replaceAll("<", "&lt;")
           .replaceAll(">", "&gt;")
           .replaceAll('"', "&quot;")
           .replaceAll("'", "&#039;");
@@ -658,27 +698,32 @@
           .join("");
       };
 
-      // Tab Navigation
+      // Navegação
       document.querySelectorAll("[data-tab]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const target = btn.dataset.tab;
+
           document
             .querySelectorAll(".view-pane")
-            .forEach((p) => p.classList.add("hidden"));
+            .forEach((pane) => pane.classList.add("hidden"));
+
           document
             .querySelectorAll("[data-tab]")
-            .forEach((b) => b.classList.remove("active"));
+            .forEach((tabBtn) => tabBtn.classList.remove("active"));
 
           const targetElement = document.getElementById(target);
-          if (targetElement) {
-            targetElement.classList.remove("hidden");
+          if (!targetElement) {
+            console.error("Aba não encontrada:", target);
+            return;
           }
+
+          targetElement.classList.remove("hidden");
           btn.classList.add("active");
           document.getElementById("pageTitle").innerText = btn.innerText.trim();
         });
       });
 
-      // Auth Handlers
+      // Login
       document
         .getElementById("btnLogin")
         .addEventListener("click", async () => {
@@ -699,9 +744,9 @@
           }
         });
 
-      document
-        .getElementById("btnLogout")
-        .addEventListener("click", () => signOut(auth));
+      document.getElementById("btnLogout").addEventListener("click", () => {
+        signOut(auth);
+      });
 
       onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -713,6 +758,7 @@
             realtimeInitialized = true;
             initRealtimeSync();
           }
+
           lucide.createIcons();
         } else {
           document.getElementById("loginView").classList.remove("hidden");
@@ -721,7 +767,6 @@
         }
       });
 
-      // Realtime Sync
       function initRealtimeSync() {
         onValue(ref(db, "users"), (snap) => {
           const data = snap.val() || {};
@@ -730,13 +775,17 @@
 
           updateClientSelects(list);
           renderClientes(list);
+          renderClienteChecklist(list);
+
           document.getElementById("statClientes").innerText = list.length;
         });
 
         onValue(ref(db, "itineraries"), (snap) => {
           const data = snap.val() || {};
           const list = Object.entries(data).map(([id, v]) => ({ id, ...v }));
+
           renderRoteiro(list);
+          renderFeedbacks(list);
 
           const total = list.length;
           const done = list.filter((i) => i.status === "realizado").length;
@@ -751,6 +800,7 @@
         onValue(ref(db, "financial"), (snap) => {
           const data = snap.val() || {};
           const list = Object.entries(data).map(([id, v]) => ({ id, ...v }));
+
           renderFinanceiro(list);
 
           const total = list.reduce(
@@ -761,9 +811,50 @@
           document.getElementById("statFinanceiro").innerText =
             formatBRL(total);
         });
+
+        onValue(ref(db, "vouchers"), (snap) => {
+          const data = snap.val() || {};
+          const list = Object.entries(data).map(([id, v]) => ({ id, ...v }));
+          renderVouchers(list);
+        });
       }
 
-      // Roteiro CRUD
+      function renderClienteChecklist(list) {
+        const container = document.getElementById("roteiroClienteChecklist");
+
+        if (!container) return;
+
+        if (!list.length) {
+          container.innerHTML = `<div class="text-muted small">Nenhum cliente cadastrado.</div>`;
+          return;
+        }
+
+        container.innerHTML = list
+          .map(
+            (cliente) => `
+              <label class="cliente-check-item">
+                <input
+                  type="checkbox"
+                  class="form-check-input roteiro-cliente-check"
+                  value="${escapeHtml(cliente.id)}"
+                  data-name="${escapeHtml(cliente.name || "Sem nome")}"
+                />
+                <span>${escapeHtml(cliente.name || "Sem nome")}</span>
+              </label>
+            `,
+          )
+          .join("");
+      }
+
+      function getSelectedRoteiroClients() {
+        return Array.from(
+          document.querySelectorAll(".roteiro-cliente-check:checked"),
+        ).map((checkbox) => ({
+          id: checkbox.value,
+          name: checkbox.dataset.name || "Sem nome",
+        }));
+      }
+
       document
         .getElementById("btnSaveRoteiro")
         .addEventListener("click", async () => {
@@ -771,11 +862,7 @@
 
           try {
             const roteiroId = document.getElementById("roteiroId").value;
-            const clienteSelect = document.getElementById("roteiroCliente");
-            const selectedClienteIds = Array.from(
-              clienteSelect.selectedOptions
-            ).map((option) => option.value);
-
+            const selectedClients = getSelectedRoteiroClients();
             const data = document.getElementById("roteiroData").value;
             const horario = document.getElementById("roteiroHorario").value;
             const atracao = document
@@ -786,7 +873,7 @@
               .value.trim();
             const endereco = document.getElementById("roteiroEnd").value.trim();
 
-            if (!selectedClienteIds.length || !data || !horario || !atracao) {
+            if (!selectedClients.length || !data || !horario || !atracao) {
               showToast(
                 "Selecione ao menos um cliente, além de data, horário e atração.",
                 "warning",
@@ -797,19 +884,8 @@
             button.disabled = true;
             button.innerText = "Salvando...";
 
-            const selectedUsers = usersCache.filter((user) =>
-              selectedClienteIds.includes(user.id)
-            );
-
-            if (!selectedUsers.length) {
-              showToast("Nenhum cliente válido encontrado.", "danger");
-              return;
-            }
-
-            const clienteIds = selectedUsers.map((user) => user.id);
-            const clienteNomes = selectedUsers.map(
-              (user) => user.name || "Sem nome"
-            );
+            const clienteIds = selectedClients.map((client) => client.id);
+            const clienteNomes = selectedClients.map((client) => client.name);
 
             const payload = {
               clienteIds,
@@ -848,26 +924,23 @@
 
       function resetRoteiroForm() {
         document.getElementById("roteiroId").value = "";
-
-        const clienteSelect = document.getElementById("roteiroCliente");
-        Array.from(clienteSelect.options).forEach((option) => {
-          option.selected = false;
-        });
-
         document.getElementById("roteiroData").value = "";
         document.getElementById("roteiroHorario").value = "";
         document.getElementById("roteiroAtracao").value = "";
         document.getElementById("roteiroObs").value = "";
         document.getElementById("roteiroEnd").value = "";
+
+        document
+          .querySelectorAll(".roteiro-cliente-check")
+          .forEach((checkbox) => {
+            checkbox.checked = false;
+          });
       }
 
       function renderRoteiro(list) {
         const container = document.getElementById("roteiroLista");
 
-        if (!container) {
-          console.warn("Elemento #roteiroLista não encontrado");
-          return;
-        }
+        if (!container) return;
 
         const sorted = [...list].sort((a, b) =>
           `${a.data || ""} ${a.horario || ""}`.localeCompare(
@@ -875,25 +948,27 @@
           ),
         );
 
-        container.innerHTML =
-          sorted
-            .map((i) => {
-              const nomes =
-                Array.isArray(i.clienteNomes) && i.clienteNomes.length
-                  ? i.clienteNomes.join(", ")
-                  : i.clienteNome || "-";
+        if (!sorted.length) {
+          container.innerHTML =
+            '<div class="text-muted text-center py-5">Sem atividades agendadas</div>';
+          return;
+        }
 
-              const badges =
-                Array.isArray(i.clienteNomes) && i.clienteNomes.length
-                  ? i.clienteNomes
-                      .map(
-                        (nome) =>
-                          `<span class="cliente-badge">${escapeHtml(nome)}</span>`
-                      )
-                      .join("")
-                  : `<span class="cliente-badge">${escapeHtml(i.clienteNome || "-")}</span>`;
+        container.innerHTML = sorted
+          .map((i) => {
+            const badges =
+              Array.isArray(i.clienteNomes) && i.clienteNomes.length
+                ? i.clienteNomes
+                    .map(
+                      (nome) =>
+                        `<span class="cliente-badge">${escapeHtml(nome)}</span>`,
+                    )
+                    .join("")
+                : `<span class="cliente-badge">${escapeHtml(
+                    i.clienteNome || "-",
+                  )}</span>`;
 
-              return `
+            return `
               <div class="card-kpi d-flex justify-content-between align-items-start gap-3">
                 <div>
                   <h6 class="fw-bold mb-1">${escapeHtml(i.atracao || "-")}</h6>
@@ -906,7 +981,9 @@
                 </div>
 
                 <div class="text-end">
-                  <span class="status-pill ${i.status === "realizado" ? "bg-success-light" : "bg-pending"}">
+                  <span class="status-pill ${
+                    i.status === "realizado" ? "bg-success-light" : "bg-pending"
+                  }">
                     ${escapeHtml(i.status || "pendente")}
                   </span>
 
@@ -924,12 +1001,64 @@
                 </div>
               </div>
             `;
-            })
-            .join("") ||
-          '<div class="text-muted text-center py-5">Sem atividades agendadas</div>';
+          })
+          .join("");
       }
 
-      // Event Delegation para Roteiro
+      function renderFeedbacks(list) {
+        const container = document.getElementById("feedbackList");
+        if (!container) return;
+
+        const feedbacks = list.filter(
+          (item) =>
+            item.feedbackCliente ||
+            item.feedback ||
+            item.experiencia ||
+            item.avaliacaoTexto,
+        );
+
+        if (!feedbacks.length) {
+          container.innerHTML = `
+            <div class="feedback-empty">
+              Nenhuma observação registrada até o momento.
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = feedbacks
+          .sort((a, b) =>
+            String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")),
+          )
+          .map((item) => {
+            const texto =
+              item.feedbackCliente ||
+              item.feedback ||
+              item.experiencia ||
+              item.avaliacaoTexto ||
+              "";
+
+            const nomes =
+              Array.isArray(item.clienteNomes) && item.clienteNomes.length
+                ? item.clienteNomes.join(", ")
+                : item.clienteNome || "Cliente";
+
+            return `
+              <div class="card-kpi feedback-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <div class="fw-bold">${escapeHtml(nomes)}</div>
+                    <div class="small text-muted">${escapeHtml(item.atracao || "Sem atração")}</div>
+                  </div>
+                  <div class="small text-muted">${escapeHtml(item.data || "")}</div>
+                </div>
+                <div>${escapeHtml(texto)}</div>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
       document.addEventListener("click", async (event) => {
         const button = event.target.closest("[data-action]");
         if (!button) return;
@@ -940,24 +1069,13 @@
           if (action === "edit-roteiro") {
             const snap = await get(ref(db, `itineraries/${id}`));
             const item = snap.val();
+
             if (!item) {
               showToast("Roteiro não encontrado.", "warning");
               return;
             }
 
             document.getElementById("roteiroId").value = id;
-
-            const clienteSelect = document.getElementById("roteiroCliente");
-            const selectedIds = Array.isArray(item.clienteIds)
-              ? item.clienteIds
-              : item.clienteId
-                ? [item.clienteId]
-                : [];
-
-            Array.from(clienteSelect.options).forEach((option) => {
-              option.selected = selectedIds.includes(option.value);
-            });
-
             document.getElementById("roteiroData").value = item.data || "";
             document.getElementById("roteiroHorario").value =
               item.horario || "";
@@ -965,6 +1083,18 @@
               item.atracao || "";
             document.getElementById("roteiroObs").value = item.observacao || "";
             document.getElementById("roteiroEnd").value = item.endereco || "";
+
+            const selectedIds = Array.isArray(item.clienteIds)
+              ? item.clienteIds
+              : item.clienteId
+                ? [item.clienteId]
+                : [];
+
+            document
+              .querySelectorAll(".roteiro-cliente-check")
+              .forEach((checkbox) => {
+                checkbox.checked = selectedIds.includes(checkbox.value);
+              });
 
             document.querySelector('[data-tab="tabRoteiro"]').click();
             showToast("Roteiro carregado para edição.", "primary");
@@ -988,13 +1118,75 @@
             await remove(ref(db, `itineraries/${id}`));
             showToast("Roteiro removido com sucesso.", "success");
           }
+
+          if (action === "edit-client") {
+            const cliente = usersCache.find((u) => u.id === id);
+            if (!cliente) return;
+
+            document.getElementById("clienteId").value = cliente.id;
+            document.getElementById("clienteNome").value = cliente.name || "";
+            document.getElementById("clientePin").value = "";
+            document.getElementById("clienteRole").value =
+              cliente.role || "cliente";
+            document.getElementById("p_rot").checked =
+              !!cliente.permissions?.roteiro;
+            document.getElementById("p_fin").checked =
+              !!cliente.permissions?.financeiro;
+            document.getElementById("p_vou").checked =
+              !!cliente.permissions?.vouchers;
+
+            document.querySelector('[data-tab="tabClientes"]').click();
+          }
+
+          if (action === "delete-client") {
+            if (!confirm("Remover este cliente?")) return;
+
+            await remove(ref(db, `users/${id}`));
+            showToast("Cliente removido com sucesso.", "success");
+          }
+
+          if (action === "delete-fin") {
+            if (!confirm("Remover este lançamento financeiro?")) return;
+
+            await remove(ref(db, `financial/${id}`));
+            showToast("Lançamento removido com sucesso.", "success");
+          }
+
+          // AÇÃO DE APAGAR VOUCHER ADICIONADA
+          if (action === "delete-voucher") {
+            if (!confirm("Deseja remover este voucher permanentemente?"))
+              return;
+
+            const snap = await get(ref(db, `vouchers/${id}`));
+            const voucher = snap.val();
+
+            if (!voucher) {
+              showToast("Voucher não encontrado.", "warning");
+              return;
+            }
+
+            // Remove o arquivo do Firebase Storage se houver um caminho registrado
+            if (voucher.storagePath) {
+              try {
+                await deleteObject(sRef(storage, voucher.storagePath));
+              } catch (storageError) {
+                console.warn(
+                  "Arquivo físico não encontrado ou erro no Storage:",
+                  storageError,
+                );
+              }
+            }
+
+            // Remove o registro do Realtime Database
+            await remove(ref(db, `vouchers/${id}`));
+            showToast("Voucher removido com sucesso.", "success");
+          }
         } catch (error) {
-          console.error("Erro na ação do roteiro:", error);
+          console.error("Erro na ação:", error);
           showToast("Não foi possível executar a ação.", "danger");
         }
       });
 
-      // Clientes CRUD
       document
         .getElementById("btnSaveCliente")
         .addEventListener("click", async () => {
@@ -1040,8 +1232,8 @@
             }
 
             resetClienteForm();
-          } catch (e) {
-            console.error("Erro ao salvar cliente:", e);
+          } catch (error) {
+            console.error("Erro ao salvar cliente:", error);
             showToast("Não foi possível salvar o cliente.", "danger");
           }
         });
@@ -1069,78 +1261,30 @@
         }
 
         tbody.innerHTML = list
-          .map((c) => {
-            const perms = [
-              c.permissions?.roteiro ? "Roteiro" : null,
-              c.permissions?.financeiro ? "Financeiro" : null,
-              c.permissions?.vouchers ? "Vouchers" : null,
-            ]
-              .filter(Boolean)
-              .join(", ");
-
-            return `
+          .map(
+            (c) => `
               <tr>
                 <td>${escapeHtml(c.name || "-")}</td>
-                <td><span class="badge bg-light text-dark border">${escapeHtml(c.role || "-")}</span></td>
                 <td>
-                  <button class="btn btn-sm btn-outline-primary me-1" data-action="edit-client" data-id="${c.id}">Editar</button>
-                  <button class="btn btn-sm btn-outline-danger" data-action="delete-client" data-id="${c.id}">Remover</button>
+                  <span class="badge bg-light text-dark border">
+                    ${escapeHtml(c.role || "-")}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary me-1" data-action="edit-client" data-id="${c.id}">
+                    Editar
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" data-action="delete-client" data-id="${c.id}">
+                    Remover
+                  </button>
                 </td>
               </tr>
-            `;
-          })
+            `,
+          )
           .join("");
       }
 
-      // Event Delegation para Clientes
-      document.addEventListener("click", async (event) => {
-        const button = event.target.closest("[data-action]");
-        if (!button) return;
-
-        const { action, id } = button.dataset;
-
-        if (action === "edit-client") {
-          const cliente = usersCache.find((u) => u.id === id);
-          if (!cliente) return;
-
-          document.getElementById("clienteId").value = cliente.id;
-          document.getElementById("clienteNome").value = cliente.name || "";
-          document.getElementById("clientePin").value = "";
-          document.getElementById("clienteRole").value =
-            cliente.role || "cliente";
-          document.getElementById("p_rot").checked =
-            !!cliente.permissions?.roteiro;
-          document.getElementById("p_fin").checked =
-            !!cliente.permissions?.financeiro;
-          document.getElementById("p_vou").checked =
-            !!cliente.permissions?.vouchers;
-
-          document.querySelector('[data-tab="tabClientes"]').click();
-        }
-
-        if (action === "delete-client") {
-          if (!confirm("Remover este cliente?")) return;
-
-          try {
-            await remove(ref(db, `users/${id}`));
-            showToast("Cliente removido com sucesso.", "success");
-          } catch (e) {
-            console.error("Erro ao remover cliente:", e);
-            showToast("Não foi possível remover o cliente.", "danger");
-          }
-        }
-      });
-
       function updateClientSelects(list) {
-        const roteiroOptions = list
-          .map(
-            (c) =>
-              `<option value="${escapeHtml(c.id)}">${escapeHtml(
-                c.name || "Sem nome",
-              )}</option>`,
-          )
-          .join("");
-
         const voucherOptions = [
           `<option value="">Selecionar Cliente...</option>`,
           ...list.map(
@@ -1151,7 +1295,6 @@
           ),
         ].join("");
 
-        document.getElementById("roteiroCliente").innerHTML = roteiroOptions;
         document.getElementById("vouCliente").innerHTML = voucherOptions;
       }
 
@@ -1187,27 +1330,124 @@
           .join("");
       }
 
-      // Event Delegation para Financeiro
-      document.addEventListener("click", async (event) => {
-        const button = event.target.closest("[data-action]");
-        if (!button) return;
-
-        const { action, id } = button.dataset;
-
-        if (action === "delete-fin") {
-          if (!confirm("Remover este lançamento financeiro?")) return;
+      document
+        .getElementById("btnSaveVoucher")
+        .addEventListener("click", async () => {
+          const button = document.getElementById("btnSaveVoucher");
 
           try {
-            await remove(ref(db, `financial/${id}`));
-            showToast("Lançamento removido com sucesso.", "success");
-          } catch (e) {
-            console.error("Erro ao remover financeiro:", e);
-            showToast("Não foi possível remover o lançamento.", "danger");
-          }
-        }
-      });
+            const clienteId = document.getElementById("vouCliente").value;
+            const atracao = document.getElementById("vouAtracao").value.trim();
+            const data = document.getElementById("vouData").value;
+            const fileInput = document.getElementById("vouFile");
+            const file = fileInput.files[0];
 
-      // Inicializar Ícones
+            if (!clienteId || !atracao || !data || !file) {
+              showToast(
+                "Preencha cliente, atração, data e selecione um arquivo.",
+                "warning",
+              );
+              return;
+            }
+
+            const cliente = usersCache.find((u) => u.id === clienteId);
+            if (!cliente) {
+              showToast("Cliente inválido.", "danger");
+              return;
+            }
+
+            button.disabled = true;
+            button.innerText = "Enviando...";
+
+            const ext = file.name.split(".").pop()?.toLowerCase() || "bin";
+            const fileName = `${Date.now()}_${Math.random()
+              .toString(36)
+              .slice(2)}.${ext}`;
+
+            const storagePath = `vouchers/${clienteId}/${fileName}`;
+            const fileRef = sRef(storage, storagePath);
+
+            await uploadBytes(fileRef, file);
+            const url = await getDownloadURL(fileRef);
+
+            await set(push(ref(db, "vouchers")), {
+              clienteId,
+              clienteNome: cliente.name || "Sem nome",
+              atracao,
+              data,
+              fileName: file.name,
+              storagePath,
+              url,
+              contentType: file.type || "",
+              createdAt: new Date().toISOString(),
+            });
+
+            document.getElementById("vouAtracao").value = "";
+            document.getElementById("vouData").value = "";
+            document.getElementById("vouFile").value = "";
+
+            showToast("Voucher enviado com sucesso.", "success");
+          } catch (error) {
+            console.error("Erro no upload do voucher:", error);
+            showToast("Não foi possível enviar o voucher.", "danger");
+          } finally {
+            button.disabled = false;
+            button.innerText = "Upload & Vincular";
+          }
+        });
+
+      function renderVouchers(list) {
+        const container = document.getElementById("vouLista");
+
+        if (!container) return;
+
+        if (!list.length) {
+          container.innerHTML = `
+            <div class="col-12">
+              <div class="card-kpi text-muted text-center">
+                Nenhum voucher cadastrado.
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = list
+          .sort((a, b) =>
+            String(b.createdAt || "").localeCompare(String(a.createdAt || "")),
+          )
+          .map((voucher) => {
+            const isImage = String(voucher.contentType || "").startsWith(
+              "image/",
+            );
+            const preview = isImage
+              ? `<img src="${voucher.url}" alt="voucher" class="img-fluid rounded-3" style="height:180px;width:100%;object-fit:cover;" />`
+              : `<div class="border rounded-3 d-flex align-items-center justify-content-center text-muted" style="height:180px;">PDF / Documento</div>`;
+
+            return `
+              <div class="col-md-6">
+                <div class="card-kpi h-100">
+                  <div class="mb-3">${preview}</div>
+                  <h6 class="fw-bold mb-1">${escapeHtml(voucher.atracao || "-")}</h6>
+                  <div class="small text-muted mb-1">${escapeHtml(voucher.clienteNome || "-")}</div>
+                  <div class="small text-muted mb-3">${escapeHtml(voucher.data || "-")}</div>
+                  
+                  <!-- BOTÕES DE AÇÃO ATUALIZADOS -->
+                  <div class="d-grid gap-2">
+                    <a href="${voucher.url}" target="_blank" class="btn btn-outline-primary btn-sm w-100">
+                      Abrir
+                    </a>
+                    <button class="btn btn-outline-danger btn-sm w-100" data-action="delete-voucher" data-id="${voucher.id}">
+                      Apagar voucher
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
       lucide.createIcons();
     </script>
   </body>
