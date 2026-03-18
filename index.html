@@ -1,0 +1,1132 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zecure Admin | Command Center</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+      :root {
+        --bg-body: #f8fafc;
+        --sidebar-bg: #0f172a;
+        --sidebar-text: #94a3b8;
+        --accent: #2563eb;
+        --card-shadow:
+          0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --radius-lg: 12px;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: var(--bg-body);
+        color: #1e293b;
+        overflow-x: hidden;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      #panelView {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        min-height: 100vh;
+      }
+
+      aside {
+        background: var(--sidebar-bg);
+        color: white;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+      }
+
+      .nav-link {
+        color: var(--sidebar-text);
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: none;
+        background: transparent;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .nav-link:hover,
+      .nav-link.active {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+
+      .nav-link.active {
+        background: var(--accent);
+      }
+
+      main {
+        padding: 2rem;
+      }
+
+      .header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--card-shadow);
+      }
+
+      .card-kpi {
+        background: white;
+        border: none;
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.2s;
+      }
+
+      .card-kpi:hover {
+        transform: translateY(-3px);
+      }
+
+      .kpi-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+      }
+
+      .table-container {
+        background: white;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+      }
+
+      .status-pill {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .bg-pending {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .bg-success-light {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      .login-container {
+        background: white;
+        border-radius: 24px;
+        padding: 3rem;
+        box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+      }
+
+      .toast-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1050;
+      }
+
+      .view-pane {
+        animation: fadeIn 0.3s ease-in;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="toast-container"></div>
+
+    <!-- Login Section -->
+    <div
+      id="loginView"
+      class="container row justify-content-center align-items-center vh-100 mx-auto"
+    >
+      <div class="col-md-5 col-lg-4">
+        <div class="login-container text-center">
+          <div class="mb-4">
+            <i
+              data-lucide="shield-check"
+              class="text-primary"
+              style="width: 48px; height: 48px"
+            ></i>
+          </div>
+          <h2 class="fw-bold mb-1">Zecure Admin</h2>
+          <p class="text-muted mb-4">Acesso Restrito ao Command Center</p>
+
+          <div class="text-start mb-3">
+            <label class="form-label small fw-bold">ID Corporativo</label>
+            <input
+              type="email"
+              id="adminEmail"
+              class="form-control form-control-lg"
+              placeholder="admin@zecure.com"
+            />
+          </div>
+
+          <div class="text-start mb-4">
+            <label class="form-label small fw-bold">Chave de Acesso</label>
+            <input
+              type="password"
+              id="adminSenha"
+              class="form-control form-control-lg"
+            />
+          </div>
+
+          <button
+            class="btn btn-primary w-100 py-3 fw-bold shadow-sm"
+            id="btnLogin"
+          >
+            Autenticar Sistema
+          </button>
+          <div id="loginMsg" class="text-danger mt-3 small"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Panel Layout -->
+    <div id="panelView" class="hidden">
+      <aside>
+        <div class="mb-5 d-flex align-items-center gap-2">
+          <i data-lucide="shield" class="text-primary"></i>
+          <span class="fw-bold h5 mb-0">ZECURE</span>
+        </div>
+
+        <nav class="flex-grow-1">
+          <button class="nav-link active" data-tab="tabDashboard">
+            <i data-lucide="layout-dashboard"></i> Dashboard
+          </button>
+          <button class="nav-link" data-tab="tabRoteiro">
+            <i data-lucide="map"></i> Roteiros
+          </button>
+          <button class="nav-link" data-tab="tabFinanceiro">
+            <i data-lucide="dollar-sign"></i> Financeiro
+          </button>
+          <button class="nav-link" data-tab="tabClientes">
+            <i data-lucide="users"></i> Clientes (IAM)
+          </button>
+          <button class="nav-link" data-tab="tabVouchers">
+            <i data-lucide="ticket"></i> Vouchers
+          </button>
+        </nav>
+
+        <div class="mt-auto border-top pt-3 border-secondary">
+          <button class="btn btn-link text-danger nav-link" id="btnLogout">
+            <i data-lucide="log-out"></i> Sair do Sistema
+          </button>
+        </div>
+      </aside>
+
+      <main>
+        <header class="header-top">
+          <div>
+            <h1 class="h4 fw-bold mb-0" id="pageTitle">
+              Dashboard Operacional
+            </h1>
+            <span class="text-muted small" id="loggedAdminEmail"></span>
+          </div>
+          <div class="d-flex gap-3 align-items-center">
+            <span class="badge bg-success-light text-success"
+              >Sistema Online</span
+            >
+          </div>
+        </header>
+
+        <div id="viewContent">
+          <!-- Dashboard Home -->
+          <div id="tabDashboard" class="view-pane">
+            <div class="row g-4 mb-4">
+              <div class="col-md-3">
+                <div class="card-kpi">
+                  <div class="kpi-icon bg-primary-subtle text-primary">
+                    <i data-lucide="users"></i>
+                  </div>
+                  <div class="text-muted small fw-bold">CLIENTES ATIVOS</div>
+                  <h2 class="fw-bold mb-0" id="statClientes">0</h2>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card-kpi">
+                  <div class="kpi-icon bg-success-subtle text-success">
+                    <i data-lucide="check-circle"></i>
+                  </div>
+                  <div class="text-muted small fw-bold">EXECUÇÃO</div>
+                  <h2 class="fw-bold mb-0" id="statRoteiro">0%</h2>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card-kpi">
+                  <div class="kpi-icon bg-warning-subtle text-warning">
+                    <i data-lucide="clock"></i>
+                  </div>
+                  <div class="text-muted small fw-bold">PENDÊNCIAS</div>
+                  <h2 class="fw-bold mb-0" id="statPendentes">0</h2>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card-kpi bg-dark text-white">
+                  <div class="kpi-icon bg-white-subtle text-white">
+                    <i data-lucide="trending-up"></i>
+                  </div>
+                  <div class="text-light small fw-bold">CAIXA ACUMULADO</div>
+                  <h2 class="fw-bold mb-0" id="statFinanceiro">R$ 0,00</h2>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab Roteiro -->
+          <div id="tabRoteiro" class="view-pane hidden">
+            <div class="row g-4">
+              <div class="col-lg-4">
+                <div class="card-kpi">
+                  <h5 class="fw-bold mb-4">Nova Atividade</h5>
+
+                  <input type="hidden" id="roteiroId" />
+
+                  <div class="mb-3">
+                    <select id="roteiroCliente" class="form-select">
+                      <option value="">Selecionar Cliente...</option>
+                    </select>
+                  </div>
+
+                  <div class="row g-2 mb-3">
+                    <div class="col-6">
+                      <input
+                        type="date"
+                        id="roteiroData"
+                        class="form-control"
+                      />
+                    </div>
+                    <div class="col-6">
+                      <input
+                        type="time"
+                        id="roteiroHorario"
+                        class="form-control"
+                      />
+                    </div>
+                  </div>
+
+                  <input
+                    type="text"
+                    id="roteiroAtracao"
+                    class="form-control mb-3"
+                    placeholder="Atração/Local"
+                  />
+
+                  <textarea
+                    id="roteiroObs"
+                    class="form-control mb-3"
+                    placeholder="Instruções de segurança"
+                  ></textarea>
+
+                  <input
+                    type="text"
+                    id="roteiroEnd"
+                    class="form-control mb-3"
+                    placeholder="Endereço georreferenciado"
+                  />
+
+                  <button
+                    class="btn btn-primary w-100 py-2"
+                    id="btnSaveRoteiro"
+                    type="button"
+                  >
+                    Agendar Registro
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-lg-8">
+                <div id="roteiroLista" class="d-flex flex-column gap-3"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab Financeiro -->
+          <div id="tabFinanceiro" class="view-pane hidden">
+            <div class="table-container p-3">
+              <div class="d-flex justify-content-between mb-3">
+                <h5 class="fw-bold">Fluxo de Caixa</h5>
+                <button class="btn btn-dark btn-sm" id="btnNewFin">
+                  Novo Lançamento
+                </button>
+              </div>
+              <div class="table-responsive">
+                <table class="table align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Data</th>
+                      <th>Cliente</th>
+                      <th>Descrição</th>
+                      <th>Valor</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="finTabela"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab Clientes -->
+          <div id="tabClientes" class="view-pane hidden">
+            <div class="row g-4">
+              <div class="col-lg-4">
+                <div class="card-kpi">
+                  <h5 class="fw-bold mb-4">Gestão de Identidade</h5>
+
+                  <input type="hidden" id="clienteId" />
+
+                  <input
+                    type="text"
+                    id="clienteNome"
+                    class="form-control mb-3"
+                    placeholder="Nome Completo"
+                  />
+
+                  <input
+                    type="password"
+                    id="clientePin"
+                    class="form-control mb-3"
+                    placeholder="PIN (4-6 dígitos)"
+                  />
+
+                  <select id="clienteRole" class="form-select mb-4">
+                    <option value="cliente">Standard User</option>
+                    <option value="cliente_vip">VIP Access</option>
+                  </select>
+
+                  <div class="mb-3">
+                    <label class="small fw-bold text-muted"
+                      >Privilégios do Painel:</label
+                    >
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="p_rot"
+                        checked
+                      />
+                      <label class="form-check-label" for="p_rot"
+                        >Roteiro</label
+                      >
+                    </div>
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="p_fin"
+                        checked
+                      />
+                      <label class="form-check-label" for="p_fin"
+                        >Financeiro</label
+                      >
+                    </div>
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="p_vou"
+                        checked
+                      />
+                      <label class="form-check-label" for="p_vou"
+                        >Vouchers</label
+                      >
+                    </div>
+                  </div>
+
+                  <button class="btn btn-primary w-100" id="btnSaveCliente">
+                    Sincronizar Acesso
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-lg-8">
+                <div class="table-container">
+                  <table class="table mb-0">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Nome</th>
+                        <th>Perfil</th>
+                        <th>Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody id="clientesTabela"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab Vouchers -->
+          <div id="tabVouchers" class="view-pane hidden">
+            <div class="row g-4">
+              <div class="col-lg-4">
+                <div class="card-kpi">
+                  <h5 class="fw-bold mb-4">Repositório de Vouchers</h5>
+
+                  <select id="vouCliente" class="form-select mb-3">
+                    <option value="">Selecionar Cliente...</option>
+                  </select>
+
+                  <input
+                    type="text"
+                    id="vouAtracao"
+                    class="form-control mb-3"
+                    placeholder="Atração"
+                  />
+
+                  <input type="date" id="vouData" class="form-control mb-3" />
+
+                  <input
+                    type="file"
+                    id="vouFile"
+                    class="form-control mb-3"
+                    accept="image/*,.pdf"
+                  />
+
+                  <button class="btn btn-primary w-100" id="btnSaveVoucher">
+                    Upload & Vincular
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-lg-8">
+                <div id="vouLista" class="row g-3"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      import {
+        getDatabase,
+        ref,
+        push,
+        set,
+        update,
+        remove,
+        onValue,
+        get,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+      import {
+        getStorage,
+        ref as sRef,
+        uploadBytes,
+        getDownloadURL,
+        deleteObject,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCh7MttxSXI8hBuL1yhCqIsx_e2yXP0_HU",
+        authDomain: "roteiro-de-viagem-31d80.firebaseapp.com",
+        databaseURL:
+          "https://roteiro-de-viagem-31d80-default-rtdb.firebaseio.com",
+        projectId: "roteiro-de-viagem-31d80",
+        storageBucket: "roteiro-de-viagem-31d80.firebasestorage.app",
+        messagingSenderId: "362863845896",
+        appId: "1:362863845896:web:73ea6a6493f93440f867bd",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getDatabase(app);
+      const storage = getStorage(app);
+
+      let usersCache = [];
+      let realtimeInitialized = false;
+
+      // UI Utilities
+      const showToast = (msg, type = "primary") => {
+        const id = Date.now();
+        const html = `
+          <div id="toast-${id}" class="toast align-items-center text-white bg-${type} border-0 show" role="alert">
+            <div class="d-flex">
+              <div class="toast-body">${msg}</div>
+              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+          </div>`;
+        document
+          .querySelector(".toast-container")
+          .insertAdjacentHTML("beforeend", html);
+        setTimeout(
+          () => document.getElementById(`toast-${id}`)?.remove(),
+          3000,
+        );
+      };
+
+      const escapeHtml = (value) => {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      };
+
+      const formatBRL = (value) => {
+        return Number(value || 0).toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        });
+      };
+
+      const hashPin = async (pin) => {
+        const msgUint8 = new TextEncoder().encode(pin);
+        const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8);
+        return Array.from(new Uint8Array(hashBuffer))
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("");
+      };
+
+      // Tab Navigation
+      document.querySelectorAll("[data-tab]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const target = btn.dataset.tab;
+          document
+            .querySelectorAll(".view-pane")
+            .forEach((p) => p.classList.add("hidden"));
+          document
+            .querySelectorAll("[data-tab]")
+            .forEach((b) => b.classList.remove("active"));
+
+          const targetElement = document.getElementById(target);
+          if (targetElement) {
+            targetElement.classList.remove("hidden");
+          }
+          btn.classList.add("active");
+          document.getElementById("pageTitle").innerText = btn.innerText.trim();
+        });
+      });
+
+      // Auth Handlers
+      document
+        .getElementById("btnLogin")
+        .addEventListener("click", async () => {
+          const email = document.getElementById("adminEmail").value.trim();
+          const pass = document.getElementById("adminSenha").value;
+
+          if (!email || !pass) {
+            showToast("Informe email e senha.", "warning");
+            return;
+          }
+
+          try {
+            await signInWithEmailAndPassword(auth, email, pass);
+            showToast("Autenticação bem-sucedida", "success");
+          } catch (e) {
+            document.getElementById("loginMsg").innerText =
+              "Credenciais inválidas.";
+          }
+        });
+
+      document
+        .getElementById("btnLogout")
+        .addEventListener("click", () => signOut(auth));
+
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          document.getElementById("loginView").classList.add("hidden");
+          document.getElementById("panelView").classList.remove("hidden");
+          document.getElementById("loggedAdminEmail").innerText = user.email;
+
+          if (!realtimeInitialized) {
+            realtimeInitialized = true;
+            initRealtimeSync();
+          }
+          lucide.createIcons();
+        } else {
+          document.getElementById("loginView").classList.remove("hidden");
+          document.getElementById("panelView").classList.add("hidden");
+          realtimeInitialized = false;
+        }
+      });
+
+      // Realtime Sync
+      function initRealtimeSync() {
+        onValue(ref(db, "users"), (snap) => {
+          const data = snap.val() || {};
+          const list = Object.entries(data).map(([id, v]) => ({ id, ...v }));
+          usersCache = list;
+
+          updateClientSelects(list);
+          renderClientes(list);
+          document.getElementById("statClientes").innerText = list.length;
+        });
+
+        onValue(ref(db, "itineraries"), (snap) => {
+          const data = snap.val() || {};
+          const list = Object.entries(data).map(([id, v]) => ({ id, ...v }));
+          renderRoteiro(list);
+
+          const total = list.length;
+          const done = list.filter((i) => i.status === "realizado").length;
+
+          document.getElementById("statRoteiro").innerText = total
+            ? Math.round((done / total) * 100) + "%"
+            : "0%";
+
+          document.getElementById("statPendentes").innerText = total - done;
+        });
+
+        onValue(ref(db, "financial"), (snap) => {
+          const data = snap.val() || {};
+          const list = Object.entries(data).map(([id, v]) => ({ id, ...v }));
+          renderFinanceiro(list);
+
+          const total = list.reduce(
+            (acc, curr) => acc + Number(curr.valor || 0),
+            0,
+          );
+
+          document.getElementById("statFinanceiro").innerText =
+            formatBRL(total);
+        });
+      }
+
+      // Roteiro CRUD
+      document
+        .getElementById("btnSaveRoteiro")
+        .addEventListener("click", async () => {
+          const button = document.getElementById("btnSaveRoteiro");
+
+          try {
+            const roteiroId = document.getElementById("roteiroId").value;
+            const clienteId = document.getElementById("roteiroCliente").value;
+            const data = document.getElementById("roteiroData").value;
+            const horario = document.getElementById("roteiroHorario").value;
+            const atracao = document
+              .getElementById("roteiroAtracao")
+              .value.trim();
+            const observacao = document
+              .getElementById("roteiroObs")
+              .value.trim();
+            const endereco = document.getElementById("roteiroEnd").value.trim();
+
+            if (!clienteId || !data || !horario || !atracao) {
+              showToast(
+                "Preencha cliente, data, horário e atração.",
+                "warning",
+              );
+              return;
+            }
+
+            button.disabled = true;
+            button.innerText = "Salvando...";
+
+            const clienteSnap = await get(ref(db, `users/${clienteId}`));
+            const cliente = clienteSnap.val();
+
+            if (!cliente) {
+              showToast("Cliente não encontrado.", "danger");
+              return;
+            }
+
+            const payload = {
+              clienteId,
+              clienteNome: cliente.name || "Sem nome",
+              data,
+              horario,
+              atracao,
+              observacao,
+              endereco,
+              status: "pendente",
+              updatedAt: new Date().toISOString(),
+            };
+
+            if (roteiroId) {
+              await update(ref(db, `itineraries/${roteiroId}`), payload);
+              showToast("Roteiro atualizado com sucesso.", "success");
+            } else {
+              await set(push(ref(db, "itineraries")), {
+                ...payload,
+                createdAt: new Date().toISOString(),
+              });
+              showToast("Roteiro criado com sucesso.", "success");
+            }
+
+            resetRoteiroForm();
+          } catch (error) {
+            console.error("Erro ao salvar roteiro:", error);
+            showToast("Não foi possível salvar o roteiro.", "danger");
+          } finally {
+            button.disabled = false;
+            button.innerText = "Agendar Registro";
+          }
+        });
+
+      function resetRoteiroForm() {
+        document.getElementById("roteiroId").value = "";
+        document.getElementById("roteiroCliente").value = "";
+        document.getElementById("roteiroData").value = "";
+        document.getElementById("roteiroHorario").value = "";
+        document.getElementById("roteiroAtracao").value = "";
+        document.getElementById("roteiroObs").value = "";
+        document.getElementById("roteiroEnd").value = "";
+      }
+
+      function renderRoteiro(list) {
+        const container = document.getElementById("roteiroLista");
+
+        if (!container) {
+          console.warn("Elemento #roteiroLista não encontrado");
+          return;
+        }
+
+        const sorted = [...list].sort((a, b) =>
+          `${a.data || ""} ${a.horario || ""}`.localeCompare(
+            `${b.data || ""} ${b.horario || ""}`,
+          ),
+        );
+
+        container.innerHTML =
+          sorted
+            .map(
+              (i) => `
+          <div class="card-kpi d-flex justify-content-between align-items-start gap-3">
+            <div>
+              <h6 class="fw-bold mb-1">${escapeHtml(i.atracao || "-")}</h6>
+              <div class="small text-muted mb-1">
+                ${escapeHtml(i.clienteNome || "-")} • ${escapeHtml(i.data || "-")} às ${escapeHtml(i.horario || "-")}
+              </div>
+              <div class="small text-muted mb-1">${escapeHtml(i.endereco || "Sem endereço")}</div>
+              <div class="small">${escapeHtml(i.observacao || "Sem observações")}</div>
+            </div>
+
+            <div class="text-end">
+              <span class="status-pill ${i.status === "realizado" ? "bg-success-light" : "bg-pending"}">
+                ${escapeHtml(i.status || "pendente")}
+              </span>
+
+              <div class="d-flex flex-wrap gap-2 mt-3 justify-content-end">
+                <button class="btn btn-sm btn-outline-primary" data-action="edit-roteiro" data-id="${i.id}">
+                  Editar
+                </button>
+                <button class="btn btn-sm btn-outline-success" data-action="toggle-roteiro" data-id="${i.id}" data-status="${i.status || "pendente"}">
+                  ${i.status === "realizado" ? "Reabrir" : "Concluir"}
+                </button>
+                <button class="btn btn-sm btn-outline-danger" data-action="delete-roteiro" data-id="${i.id}">
+                  Remover
+                </button>
+              </div>
+            </div>
+          </div>
+        `,
+            )
+            .join("") ||
+          '<div class="text-muted text-center py-5">Sem atividades agendadas</div>';
+      }
+
+      // Event Delegation para Roteiro
+      document.addEventListener("click", async (event) => {
+        const button = event.target.closest("[data-action]");
+        if (!button) return;
+
+        const { action, id, status } = button.dataset;
+
+        try {
+          if (action === "edit-roteiro") {
+            const snap = await get(ref(db, `itineraries/${id}`));
+            const item = snap.val();
+            if (!item) {
+              showToast("Roteiro não encontrado.", "warning");
+              return;
+            }
+
+            document.getElementById("roteiroId").value = id;
+            document.getElementById("roteiroCliente").value =
+              item.clienteId || "";
+            document.getElementById("roteiroData").value = item.data || "";
+            document.getElementById("roteiroHorario").value =
+              item.horario || "";
+            document.getElementById("roteiroAtracao").value =
+              item.atracao || "";
+            document.getElementById("roteiroObs").value = item.observacao || "";
+            document.getElementById("roteiroEnd").value = item.endereco || "";
+
+            document.querySelector('[data-tab="tabRoteiro"]').click();
+            showToast("Roteiro carregado para edição.", "primary");
+          }
+
+          if (action === "toggle-roteiro") {
+            const nextStatus =
+              status === "realizado" ? "pendente" : "realizado";
+
+            await update(ref(db, `itineraries/${id}`), {
+              status: nextStatus,
+              updatedAt: new Date().toISOString(),
+            });
+
+            showToast(`Status alterado para ${nextStatus}.`, "success");
+          }
+
+          if (action === "delete-roteiro") {
+            if (!confirm("Deseja remover este roteiro?")) return;
+
+            await remove(ref(db, `itineraries/${id}`));
+            showToast("Roteiro removido com sucesso.", "success");
+          }
+        } catch (error) {
+          console.error("Erro na ação do roteiro:", error);
+          showToast("Não foi possível executar a ação.", "danger");
+        }
+      });
+
+      // Clientes CRUD
+      document
+        .getElementById("btnSaveCliente")
+        .addEventListener("click", async () => {
+          try {
+            const id = document.getElementById("clienteId").value;
+            const nome = document.getElementById("clienteNome").value.trim();
+            const pin = document.getElementById("clientePin").value.trim();
+
+            if (!nome) {
+              showToast("Informe o nome do cliente.", "warning");
+              return;
+            }
+
+            if (pin && !/^\d{4,6}$/.test(pin)) {
+              showToast("O PIN deve ter entre 4 e 6 dígitos.", "warning");
+              return;
+            }
+
+            const payload = {
+              name: nome,
+              role: document.getElementById("clienteRole").value,
+              permissions: {
+                roteiro: document.getElementById("p_rot").checked,
+                financeiro: document.getElementById("p_fin").checked,
+                vouchers: document.getElementById("p_vou").checked,
+              },
+              updatedAt: new Date().toISOString(),
+            };
+
+            if (pin) {
+              payload.pinHash = await hashPin(pin);
+            }
+
+            if (id) {
+              await update(ref(db, `users/${id}`), payload);
+              showToast("Cliente atualizado com sucesso.", "success");
+            } else {
+              await set(push(ref(db, "users")), {
+                ...payload,
+                createdAt: new Date().toISOString(),
+              });
+              showToast("Cliente criado com sucesso.", "success");
+            }
+
+            resetClienteForm();
+          } catch (e) {
+            console.error("Erro ao salvar cliente:", e);
+            showToast("Não foi possível salvar o cliente.", "danger");
+          }
+        });
+
+      function resetClienteForm() {
+        document.getElementById("clienteId").value = "";
+        document.getElementById("clienteNome").value = "";
+        document.getElementById("clientePin").value = "";
+        document.getElementById("clienteRole").value = "cliente";
+        document.getElementById("p_rot").checked = true;
+        document.getElementById("p_fin").checked = true;
+        document.getElementById("p_vou").checked = true;
+      }
+
+      function renderClientes(list) {
+        const tbody = document.getElementById("clientesTabela");
+
+        if (!list.length) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="3" class="text-muted text-center py-4">Nenhum cliente cadastrado.</td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = list
+          .map((c) => {
+            const perms = [
+              c.permissions?.roteiro ? "Roteiro" : null,
+              c.permissions?.financeiro ? "Financeiro" : null,
+              c.permissions?.vouchers ? "Vouchers" : null,
+            ]
+              .filter(Boolean)
+              .join(", ");
+
+            return `
+              <tr>
+                <td>${escapeHtml(c.name || "-")}</td>
+                <td><span class="badge bg-light text-dark border">${escapeHtml(c.role || "-")}</span></td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary me-1" data-action="edit-client" data-id="${c.id}">Editar</button>
+                  <button class="btn btn-sm btn-outline-danger" data-action="delete-client" data-id="${c.id}">Remover</button>
+                </td>
+              </tr>
+            `;
+          })
+          .join("");
+      }
+
+      // Event Delegation para Clientes
+      document.addEventListener("click", async (event) => {
+        const button = event.target.closest("[data-action]");
+        if (!button) return;
+
+        const { action, id } = button.dataset;
+
+        if (action === "edit-client") {
+          const cliente = usersCache.find((u) => u.id === id);
+          if (!cliente) return;
+
+          document.getElementById("clienteId").value = cliente.id;
+          document.getElementById("clienteNome").value = cliente.name || "";
+          document.getElementById("clientePin").value = "";
+          document.getElementById("clienteRole").value =
+            cliente.role || "cliente";
+          document.getElementById("p_rot").checked =
+            !!cliente.permissions?.roteiro;
+          document.getElementById("p_fin").checked =
+            !!cliente.permissions?.financeiro;
+          document.getElementById("p_vou").checked =
+            !!cliente.permissions?.vouchers;
+
+          document.querySelector('[data-tab="tabClientes"]').click();
+        }
+
+        if (action === "delete-client") {
+          if (!confirm("Remover este cliente?")) return;
+
+          try {
+            await remove(ref(db, `users/${id}`));
+            showToast("Cliente removido com sucesso.", "success");
+          } catch (e) {
+            console.error("Erro ao remover cliente:", e);
+            showToast("Não foi possível remover o cliente.", "danger");
+          }
+        }
+      });
+
+      function updateClientSelects(list) {
+        const options = [
+          `<option value="">Selecionar Cliente...</option>`,
+          ...list.map(
+            (c) =>
+              `<option value="${escapeHtml(c.id)}">${escapeHtml(
+                c.name || "Sem nome",
+              )}</option>`,
+          ),
+        ].join("");
+
+        document.getElementById("roteiroCliente").innerHTML = options;
+        document.getElementById("vouCliente").innerHTML = options;
+      }
+
+      function renderFinanceiro(list) {
+        const tbody = document.getElementById("finTabela");
+
+        if (!list.length) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="5" class="text-center text-muted py-4">Nenhum lançamento financeiro.</td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = list
+          .sort((a, b) => (b.data || "").localeCompare(a.data || ""))
+          .map(
+            (f) => `
+              <tr>
+                <td>${escapeHtml(f.data || "-")}</td>
+                <td>${escapeHtml(f.clienteNome || "-")}</td>
+                <td>${escapeHtml(f.descricao || "-")}</td>
+                <td class="fw-bold">${formatBRL(f.valor || 0)}</td>
+                <td>
+                  <button class="btn btn-sm btn-danger" data-action="delete-fin" data-id="${f.id}">
+                    Remover
+                  </button>
+                </td>
+              </tr>
+            `,
+          )
+          .join("");
+      }
+
+      // Event Delegation para Financeiro
+      document.addEventListener("click", async (event) => {
+        const button = event.target.closest("[data-action]");
+        if (!button) return;
+
+        const { action, id } = button.dataset;
+
+        if (action === "delete-fin") {
+          if (!confirm("Remover este lançamento financeiro?")) return;
+
+          try {
+            await remove(ref(db, `financial/${id}`));
+            showToast("Lançamento removido com sucesso.", "success");
+          } catch (e) {
+            console.error("Erro ao remover financeiro:", e);
+            showToast("Não foi possível remover o lançamento.", "danger");
+          }
+        }
+      });
+
+      // Inicializar Ícones
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
